@@ -1,0 +1,5 @@
+# TOP LEVEL & TOOLING #
+.project_files/
+# PYTHON APP #
+venv_bekind/
+# NEXT JS WEB FRONT #
