@@ -2,4 +2,5 @@
 .project_files/
 # PYTHON APP #
 venv_bekind/
+__pycache__/
 # NEXT JS WEB FRONT #
