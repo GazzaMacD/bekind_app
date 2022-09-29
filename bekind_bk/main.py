@@ -1,15 +1,14 @@
-from gzip import BadGzipFile
 import random
 import uuid
 from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.params import Body
 from pydantic import BaseModel
 
 app = FastAPI()
 
-db = []
+db = {}
 
 # Pydantic Model
 class Post(BaseModel):
@@ -31,13 +30,43 @@ async def posts():
 
 
 @app.post("/posts/create")
-async def root(post: Post):
+async def create_post(post: Post, response: Response):
+    post_id = uuid.uuid4()
     new_post = {
-        "id": uuid.uuid4(),
+        "id": post_id,
         "title": post.title,
         "content": post.content,
         "published": post.published,
         "rating": post.rating,
     }
-    db.append(new_post)
+    db[post_id] = new_post
+    response.status_code = status.HTTP_201_CREATED
     return {"data": new_post}
+
+
+@app.get("/posts/{uid}")
+async def get_post(uid, response: Response):
+    try:
+        uid = uuid.UUID(uid)
+        post = db[uid]
+    except ValueError:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {"error": "Not a valid uid parameter "}
+    except KeyError:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": "Post with this uuid does not exist"}
+    return {"data": post}
+
+
+@app.delete("/posts/{uid}/delete")
+async def delete_post(uid, response: Response):
+    try:
+        uid = uuid.UUID(uid)
+        del db[uid]
+        return {"data": "post deleted"}
+    except ValueError:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return {"error": "Not a valid uid parameter "}
+    except KeyError:
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": "Post with this uuid does not exist"}
