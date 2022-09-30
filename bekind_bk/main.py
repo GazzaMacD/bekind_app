@@ -2,7 +2,7 @@ import random
 import uuid
 from typing import Optional
 
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body
 from pydantic import BaseModel
 
@@ -29,7 +29,7 @@ async def posts():
     return {"data": db}
 
 
-@app.post("/posts/create")
+@app.post("/posts/create", status_code=status.HTTP_201_CREATED)
 async def create_post(post: Post, response: Response):
     post_id = uuid.uuid4()
     new_post = {
@@ -40,33 +40,39 @@ async def create_post(post: Post, response: Response):
         "rating": post.rating,
     }
     db[post_id] = new_post
-    response.status_code = status.HTTP_201_CREATED
     return {"data": new_post}
 
 
-@app.get("/posts/{uid}")
-async def get_post(uid, response: Response):
+@app.get("/posts/{id}")
+async def get_post(id, response: Response):
     try:
-        uid = uuid.UUID(uid)
-        post = db[uid]
+        id = uuid.UUID(id)
+        post = db[id]
     except ValueError:
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return {"error": "Not a valid uid parameter "}
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Not a valid id parameter "
+        )
     except KeyError:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": "Post with this uuid does not exist"}
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Post with this id does not exist",
+        )
     return {"data": post}
 
 
-@app.delete("/posts/{uid}/delete")
-async def delete_post(uid, response: Response):
+@app.delete("/posts/{id}/delete")
+async def delete_post(id, response: Response):
     try:
-        uid = uuid.UUID(uid)
-        del db[uid]
-        return {"data": "post deleted"}
+        id = uuid.UUID(id)
+        post = db[id]
     except ValueError:
-        response.status_code = status.HTTP_400_BAD_REQUEST
-        return {"error": "Not a valid uid parameter "}
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Not a valid id parameter "
+        )
     except KeyError:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": "Post with this uuid does not exist"}
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Post with this id does not exist",
+        )
+    del db[id]
+    return {"data": "post successfuly deleted"}
