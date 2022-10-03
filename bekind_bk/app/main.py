@@ -1,11 +1,30 @@
 import random
 import uuid
-from typing import Optional
 
 from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body
-from typing import Union
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from pydantic import BaseModel
+from typing import Union, Optional
+
+from app.private.private import get_private
+
+try:
+    conn = psycopg2.connect(
+        host=get_private("DB_HOST"),
+        port=get_private("DB_PORT"),
+        database=get_private("DB_NAME"),
+        user=get_private("DB_USER"),
+        password=get_private("DB_PWD"),
+        cursor_factory=RealDictCursor,
+    )
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM posts")
+    print(cur.fetchall())
+except Exception as error:
+    print("Error", error)
+
 
 app = FastAPI()
 

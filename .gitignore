@@ -1,5 +1,6 @@
 # TOP LEVEL & TOOLING #
 .project_files/
+private/
 # PYTHON APP #
 venv_bekind/
 __pycache__/
