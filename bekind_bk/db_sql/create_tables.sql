@@ -1,5 +1,5 @@
 /* POSTS TABLE */
-CREATE TABLE posts(
+CREATE TABLE post(
    id SERIAL PRIMARY KEY,
    uuid UUID DEFAULT uuid_generate_v4(),
    title VARCHAR(50) NOT NULL,

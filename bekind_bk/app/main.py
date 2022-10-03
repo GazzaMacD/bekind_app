@@ -1,15 +1,22 @@
 import random
 import uuid
 
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body
+from sqlalchemy.orm import Session
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from pydantic import BaseModel
 from typing import Union, Optional
 
 from app.private.private import get_private
+from . import models
+from .db import SessionLocal, engine, get_db
 
+models.Base.metadata.create_all(bind=engine)
+
+
+"""
 try:
     conn = psycopg2.connect(
         host=get_private("DB_HOST"),
@@ -24,7 +31,7 @@ try:
     print(cur.fetchall())
 except Exception as error:
     print("Error", error)
-
+"""
 
 app = FastAPI()
 
@@ -46,6 +53,9 @@ class PostUpdate(BaseModel):
 
 
 # Path operations
+@app.get("/test")
+async def test_posts(db: Session = Depends(get_db)):
+    return {"status": "success"}
 
 
 @app.get("/")
