@@ -78,19 +78,25 @@ async def posts(db: Session = Depends(get_db)):
 
 
 @app.post("/posts/create", status_code=status.HTTP_201_CREATED)
-async def create_post(post: NewPost):
+async def create_post(post: NewPost, db: Session = Depends(get_db)):
     """
     Create new single post using NewPost pydantic class validation and defaults
     """
-    post_id = uuid.uuid4()
-    new_post = {
-        "id": post_id,
-        "title": post.title,
-        "content": post.content,
-        "published": post.published,
-        "rating": post.rating,
-    }
-    db[post_id] = new_post
+    # post_id = uuid.uuid4()
+    new_post = models.Post(
+        title=post.title, content=post.content, published=post.published
+    )
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
+    # new_post = {
+    #     "id": post_id,
+    #     "title": post.title,
+    #     "content": post.content,
+    #     "published": post.published,
+    #     "rating": post.rating,
+    # }
+    # db[post_id] = new_post
     return {"data": new_post}
 
 
