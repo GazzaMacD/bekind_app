@@ -69,11 +69,12 @@ async def root():
 
 
 @app.get("/posts/")
-async def posts():
+async def posts(db: Session = Depends(get_db)):
     """
     Get all posts, published or unpublished
     """
-    return {"data": db}
+    posts = db.query(models.Post).all()
+    return {"data": posts}
 
 
 @app.post("/posts/create", status_code=status.HTTP_201_CREATED)
