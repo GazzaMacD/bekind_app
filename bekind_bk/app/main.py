@@ -101,21 +101,15 @@ async def create_post(post: NewPost, db: Session = Depends(get_db)):
 
 
 @app.get("/posts/{id}")
-async def get_post(id):
+async def get_post(id: int, db: Session = Depends(get_db)):
     """
     Get single post using id
     """
-    try:
-        id = uuid.UUID(id)
-        post = db[id]
-    except KeyError:
+    post = db.query(models.Post).filter(models.Post.id == id).first()
+    if not post:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Post with this id does not exist",
-        )
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Not a valid id parameter "
         )
     return {"data": post}
 
