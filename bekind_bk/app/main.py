@@ -42,14 +42,12 @@ class NewPost(BaseModel):
     title: str
     content: str
     published: bool = False
-    rating: Optional[int] = None
 
 
 class PostUpdate(BaseModel):
     title: str
     content: str
     published: bool
-    rating: Union[int, None]
 
 
 # Path operations
@@ -115,31 +113,26 @@ async def get_post(id: int, db: Session = Depends(get_db)):
 
 
 @app.put("/posts/{id}/update")
-async def update_post(id, post: PostUpdate):
+async def update_post(id: int, post: PostUpdate, db: Session = Depends(get_db)):
     """
     Update single post using id and put data
     """
     post_dict = post.dict()
-    try:
-        id = uuid.UUID(id)
-        orig_post = db.get(id, None)
-        if orig_post is None:
-            raise KeyError
-        db[id] = post_dict
-    except KeyError:
+    postQ = db.query(models.Post).filter(models.Post.id == id)
+    target_post = postQ.first()
+    if not postQ.first():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Post with this id does not exist",
         )
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Not a valid id parameter "
-        )
-    return {"data": post_dict}
+    postQ.update(post_dict, synchronize_session=False)
+    db.commit()
+    db.refresh(target_post)
+    return {"data": target_post}
 
 
 @app.delete("/posts/{id}/delete")
-async def delete_post(id, db: Session = Depends(get_db)):
+async def delete_post(id: int, db: Session = Depends(get_db)):
     """
     Delete single post using id
     """
