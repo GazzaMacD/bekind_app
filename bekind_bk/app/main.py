@@ -6,12 +6,12 @@ from fastapi.params import Body
 from sqlalchemy.orm import Session
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from pydantic import BaseModel
 from typing import Union, Optional
 
 from app.private.private import get_private
 from . import models
 from .db import SessionLocal, engine, get_db
+from .schemas import CreatePostSch, UpdatePostSch
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -34,20 +34,6 @@ except Exception as error:
 """
 
 app = FastAPI()
-
-db = {}
-
-# Pydantic Models
-class NewPost(BaseModel):
-    title: str
-    content: str
-    published: bool = False
-
-
-class PostUpdate(BaseModel):
-    title: str
-    content: str
-    published: bool
 
 
 # Path operations
@@ -76,7 +62,7 @@ async def posts(db: Session = Depends(get_db)):
 
 
 @app.post("/posts/create", status_code=status.HTTP_201_CREATED)
-async def create_post(post: NewPost, db: Session = Depends(get_db)):
+async def create_post(post: CreatePostSch, db: Session = Depends(get_db)):
     """
     Create new single post using NewPost pydantic class validation and defaults
     """
@@ -113,7 +99,7 @@ async def get_post(id: int, db: Session = Depends(get_db)):
 
 
 @app.put("/posts/{id}/update")
-async def update_post(id: int, post: PostUpdate, db: Session = Depends(get_db)):
+async def update_post(id: int, post: UpdatePostSch, db: Session = Depends(get_db)):
     """
     Update single post using id and put data
     """
