@@ -1,6 +1,7 @@
 from pydantic import BaseModel
+from datetime import datetime
 
-# Pydantic Models
+#  ===== Post Schemas ============
 class CreatePostSch(BaseModel):
     title: str
     content: str
@@ -11,3 +12,17 @@ class UpdatePostSch(BaseModel):
     title: str
     content: str
     published: bool
+
+
+class CreatePostRespDataSch(BaseModel):
+    id: int
+    title: str
+    content: str
+    published: bool
+
+    class Config:
+        orm_mode = True
+
+
+class CreatePostRespSch(BaseModel):
+    data: CreatePostRespDataSch

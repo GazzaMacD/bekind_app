@@ -11,7 +11,7 @@ from typing import Union, Optional
 from app.private.private import get_private
 from . import models
 from .db import SessionLocal, engine, get_db
-from .schemas import CreatePostSch, UpdatePostSch
+from .schemas import CreatePostSch, UpdatePostSch, CreatePostRespSch
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -37,10 +37,6 @@ app = FastAPI()
 
 
 # Path operations
-@app.get("/test")
-async def test_posts(db: Session = Depends(get_db)):
-    posts = db.query(models.Post).all()
-    return {"data": posts}
 
 
 @app.get("/")
@@ -61,7 +57,11 @@ async def posts(db: Session = Depends(get_db)):
     return {"data": posts}
 
 
-@app.post("/posts/create", status_code=status.HTTP_201_CREATED)
+@app.post(
+    "/posts/create",
+    status_code=status.HTTP_201_CREATED,
+    response_model=CreatePostRespSch,
+)
 async def create_post(post: CreatePostSch, db: Session = Depends(get_db)):
     """
     Create new single post using NewPost pydantic class validation and defaults
