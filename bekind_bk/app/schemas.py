@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import List
 
 #  ===== Post Schemas ============
 class CreatePostSch(BaseModel):
@@ -14,7 +15,8 @@ class UpdatePostSch(BaseModel):
     published: bool
 
 
-class CreatePostRespDataSch(BaseModel):
+# Response Schema
+class BasePostRespDataSch(BaseModel):
     id: int
     title: str
     content: str
@@ -25,4 +27,20 @@ class CreatePostRespDataSch(BaseModel):
 
 
 class CreatePostRespSch(BaseModel):
-    data: CreatePostRespDataSch
+    data: BasePostRespDataSch
+
+
+class PostsRespSch(BaseModel):
+    data: List[BasePostRespDataSch]
+
+
+class UpdatePostRespSch(BaseModel):
+    data: BasePostRespDataSch
+
+
+class SinglePostRespSch(BaseModel):
+    data: BasePostRespDataSch
+
+
+class DeletePostRespSch(BaseModel):
+    data: str

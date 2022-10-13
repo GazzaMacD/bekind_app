@@ -11,7 +11,15 @@ from typing import Union, Optional
 from app.private.private import get_private
 from . import models
 from .db import SessionLocal, engine, get_db
-from .schemas import CreatePostSch, UpdatePostSch, CreatePostRespSch
+from .schemas import (
+    CreatePostSch,
+    UpdatePostSch,
+    CreatePostRespSch,
+    PostsRespSch,
+    UpdatePostRespSch,
+    DeletePostRespSch,
+    SinglePostRespSch,
+)
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -48,7 +56,10 @@ async def root():
     return {"random_int": f"{random_int}"}
 
 
-@app.get("/posts/")
+@app.get(
+    "/posts/",
+    response_model=PostsRespSch,
+)
 async def posts(db: Session = Depends(get_db)):
     """
     Get all posts, published or unpublished
@@ -84,7 +95,7 @@ async def create_post(post: CreatePostSch, db: Session = Depends(get_db)):
     return {"data": new_post}
 
 
-@app.get("/posts/{id}")
+@app.get("/posts/{id}", response_model=SinglePostRespSch)
 async def get_post(id: int, db: Session = Depends(get_db)):
     """
     Get single post using id
@@ -98,7 +109,10 @@ async def get_post(id: int, db: Session = Depends(get_db)):
     return {"data": post}
 
 
-@app.put("/posts/{id}/update")
+@app.put(
+    "/posts/{id}/update",
+    response_model=UpdatePostRespSch,
+)
 async def update_post(id: int, post: UpdatePostSch, db: Session = Depends(get_db)):
     """
     Update single post using id and put data
@@ -117,7 +131,10 @@ async def update_post(id: int, post: UpdatePostSch, db: Session = Depends(get_db
     return {"data": target_post}
 
 
-@app.delete("/posts/{id}/delete")
+@app.delete(
+    "/posts/{id}/delete",
+    response_model=DeletePostRespSch,
+)
 async def delete_post(id: int, db: Session = Depends(get_db)):
     """
     Delete single post using id
