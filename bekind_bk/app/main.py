@@ -19,6 +19,8 @@ from .schemas import (
     UpdatePostRespSch,
     DeletePostRespSch,
     SinglePostRespSch,
+    CreateUserRespSch,
+    CreateUserSch,
 )
 
 models.Base.metadata.create_all(bind=engine)
@@ -148,3 +150,20 @@ async def delete_post(id: int, db: Session = Depends(get_db)):
     postQ.delete(synchronize_session=False)
     db.commit()
     return {"data": "post successfuly deleted"}
+
+
+@app.post(
+    "/users/create",
+    status_code=status.HTTP_201_CREATED,
+    response_model=CreateUserRespSch,
+)
+async def create_user(user: CreateUserSch, db: Session = Depends(get_db)):
+    """
+    Create new user using pydantic class validation and defaults
+    """
+    print(user)
+    new_user = models.User(email=user.email, password=user.password, name=user.name)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"data": new_user}
