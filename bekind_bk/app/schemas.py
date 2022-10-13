@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import List
 
@@ -58,13 +58,13 @@ User Schemas
 # Create User
 class CreateUserSch(BaseModel):
     email: str
-    password: str
+    password: EmailStr
     name: str
 
 
 class UserBaseRespSch(BaseModel):
     id: int
-    email: str
+    email: EmailStr
     name: str
     created: datetime
 

@@ -161,7 +161,6 @@ async def create_user(user: CreateUserSch, db: Session = Depends(get_db)):
     """
     Create new user using pydantic class validation and defaults
     """
-    print(user)
     new_user = models.User(email=user.email, password=user.password, name=user.name)
     db.add(new_user)
     db.commit()
