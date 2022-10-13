@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Union, Optional
+from passlib.context import CryptContext
 
 from app.private.private import get_private
 from . import models
@@ -24,6 +25,8 @@ from .schemas import (
 )
 
 models.Base.metadata.create_all(bind=engine)
+
+pwd_context = CryptContext(schemes=["bcrypt"])
 
 
 """
@@ -161,7 +164,8 @@ async def create_user(user: CreateUserSch, db: Session = Depends(get_db)):
     """
     Create new user using pydantic class validation and defaults
     """
-    new_user = models.User(email=user.email, password=user.password, name=user.name)
+    hashed = pwd_context.hash(user.password)
+    new_user = models.User(email=user.email, password=hashed, name=user.name)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)

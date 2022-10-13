@@ -57,8 +57,8 @@ User Schemas
 
 # Create User
 class CreateUserSch(BaseModel):
-    email: str
-    password: EmailStr
+    email: EmailStr
+    password: str
     name: str
 
 
